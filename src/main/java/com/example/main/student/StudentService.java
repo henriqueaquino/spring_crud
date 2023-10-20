@@ -2,7 +2,6 @@ package com.example.main.student;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,7 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public List<Student> getStudents(){
+    public Iterable<Student> getStudents(){
         return studentRepository.findAll();
     }
 
@@ -38,23 +37,37 @@ public class StudentService {
         return studentRepository.findById(studentId).get();
     }
 
-    public void createStudent(Student student){
+    public Student createStudent(Student student){
         System.out.println(student.getId() + " " + student.getName());
-        studentRepository.save(student);
+        Student newStudent = studentRepository.save(student);
+        return newStudent;
     }
 
-    @Transactional
-    public void updateStudent(Long studentId, String studentName){
-        Boolean existe = studentRepository.existsById(studentId);
+    // @Transactional
+    // public void updateStudent(Long studentId, String studentName){
+    //     Boolean existe = studentRepository.existsById(studentId);
 
+    //     if(!existe){
+    //         throw new IllegalStateException("Usuario nao existe");
+    //     }
+
+    //     if (studentName != null){
+    //         Optional<Student> student = studentRepository.findById(studentId);
+    //         student.get().setName(studentName);
+    //     }
+    // }
+
+    @Transactional
+    public void updateStudent(Student student, Long studentId){
+        System.out.println(student.getName() + " " + student.getId());
+        Boolean existe = studentRepository.existsById(studentId);
+        
         if(!existe){
             throw new IllegalStateException("Usuario nao existe");
         }
 
-        if (studentName != null){
-            Optional<Student> student = studentRepository.findById(studentId);
-            student.get().setName(studentName);
-        }
+        Student newStudent = studentRepository.findById(studentId).get();
+        newStudent.setName(student.getName());
     }
 
     public void deleteStudent(Long studentId){

@@ -1,9 +1,13 @@
 package com.example.main.student;
 
+import java.net.URI;
+import java.net.http.*;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,15 +34,23 @@ public class StudentController {
     }
 
     @GetMapping
-	public List<Student> getStudents(){
-        return studentService.getStudents();
+	public ResponseEntity<Iterable<Student>> getStudents(){
+        return ResponseEntity.ok(studentService.getStudents());
     }
 
+    // @GetMapping (path = "{studentId}")
+	// public Student getStudent(
+    //     @PathVariable("studentId") Long studentId
+    // ){
+    //     return studentService.getStudent(studentId);
+    // }
+
     @GetMapping (path = "{studentId}")
-	public Student getStudent(
+	public ResponseEntity<Student> getStudent(
         @PathVariable("studentId") Long studentId
     ){
-        return studentService.getStudent(studentId);
+        Student student = studentService.getStudent(studentId);
+        return ResponseEntity.ok(student);
     }
 
     @GetMapping(path = "/create")
@@ -48,27 +60,62 @@ public class StudentController {
         studentService.createStudent(new Student("Aquino"));
     }
 
+    // @PostMapping
+    // public void createStudent(
+    //     @RequestBody Student student
+    // ){
+    //     studentService.createStudent(student);
+    // }
+
     @PostMapping
-    public void createStudent(
+    public ResponseEntity<Void> createStudent(
         @RequestBody Student student
     ){
-        System.out.println(student.getId() + " " + student.getName());
-        studentService.createStudent(student);
+        Student newStudent = studentService.createStudent(student);
+        URI locationOfNewStudent = URI.create("api/student/" + newStudent.getId());
+        return ResponseEntity
+        .created(locationOfNewStudent)
+        .build();
     }
+
+    // @PutMapping(path = "{studentId}")
+    // public void updateStudent(
+    //     @PathVariable("studentId") Long studentId,
+    //     @RequestParam(required = false) String name
+    //     //@RequestParam(value = "name", defaultValue = "World") String name
+    // ){
+    //     studentService.updateStudent(studentId, name);
+    // }
+
+    // @PutMapping(path = "{studentId}")
+    // public void updateStudent(
+    //     @RequestBody Student student,
+    //     @PathVariable Long studentId
+    // ){
+    //     studentService.updateStudent(student, studentId);
+    // }
 
     @PutMapping(path = "{studentId}")
-    public void updateStudent(
-        @PathVariable("studentId") Long studentId,
-        @RequestParam(required = false) String name
-        //@RequestParam(value = "name", defaultValue = "World") String name
+    public ResponseEntity<Void> updateStudent(
+        @RequestBody Student student,
+        @PathVariable Long studentId
     ){
-        studentService.updateStudent(studentId, name);
+        studentService.updateStudent(student, studentId);
+        return ResponseEntity.noContent().build();
     }
 
+    // @DeleteMapping(path = "{studentId}")
+    // public void deleteStudent(
+    //     @PathVariable("studentId") Long studentId
+    // ){
+    //     studentService.deleteStudent(studentId);
+    // }
+
     @DeleteMapping(path = "{studentId}")
-    public void deleteStudent(
+    public ResponseEntity<Void> deleteStudent(
         @PathVariable("studentId") Long studentId
     ){
         studentService.deleteStudent(studentId);
+        return ResponseEntity.noContent().build();
     }
 }
